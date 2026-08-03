@@ -1,13 +1,81 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
 import Navbar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/layout/Footer/Footer";
-import Button from "../../components/common/Button/Button";
 import settingsBg from "../../assets/images/settings.jpg";
 
+const LANGUAGES = ["Português (BR)", "English", "Español"];
+
+const cardStyle = {
+  backgroundColor: "rgba(16, 8, 20, 0.82)",
+};
+
+function LanguageDropdown({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative w-full">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between bg-[#100814] border border-cyan-500/30 rounded-2xl px-4 py-3 text-sm text-white/90 hover:border-cyan-400/60 transition-colors focus:outline-none"
+      >
+        <span>{value}</span>
+        <ChevronDown size={16} className={`text-cyan-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <ul className="absolute z-50 bottom-full mb-2 w-full rounded-2xl border border-cyan-500/30 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.15)]" style={{ backgroundColor: "#100814" }}>
+          {LANGUAGES.map((lang) => (
+            <li
+              key={lang}
+              onClick={() => { onChange(lang); setOpen(false); }}
+              className={`px-4 py-3 text-sm cursor-pointer transition-colors ${
+                lang === value
+                  ? "text-cyan-300 bg-cyan-500/10"
+                  : "text-white/70 hover:bg-cyan-500/10 hover:text-white"
+              }`}
+            >
+              {lang}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function NeonToggle({ checked, onChange }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-300 focus:outline-none ${
+        checked ? "border-cyan-400 bg-cyan-500/20" : "border-white/20 bg-white/5"
+      }`}
+    >
+      <span
+        className={`inline-block h-4 w-4 mt-[1px] rounded-full transition-all duration-300 shadow-sm ${
+          checked
+            ? "translate-x-5 bg-cyan-300 shadow-[0_0_8px_rgba(6,182,212,0.8)]"
+            : "translate-x-0.5 bg-white/30"
+        }`}
+      />
+    </button>
+  );
+}
+
 export default function Settings({ player = { name: "Nome do Usuário", coins: 30, createdAt: "2026-01-01" } }) {
-  const [name, setName] = useState(player.name);
   const [language, setLanguage] = useState("Português (BR)");
-  const [dirty, setDirty] = useState(false);
+  const [notifications, setNotifications] = useState(true);
 
   const pilotSince = new Date(player.createdAt).toLocaleDateString("pt-BR", {
     month: "long",
@@ -15,93 +83,71 @@ export default function Settings({ player = { name: "Nome do Usuário", coins: 3
   });
 
   return (
-    <div className="relative min-h-screen overflow-hidden text-cyber-light">
-     <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${settingsBg})` }}
-          />
-      <div className="relative z-10" style={{ backgroundColor: 'rgba(19, 15, 42, 0.80)' }}
->
+    <div className="relative h-screen overflow-hidden text-white flex flex-col">
+      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${settingsBg})` }} />
+      <div className="absolute inset-0" style={{ backgroundColor: "rgba(19, 15, 42, 0.85)" }} />
+
+      <div className="relative z-10 flex flex-col h-full">
         <Navbar />
 
-        <main className="max-w-3xl mx-auto px-6 pt-10 pb-24">
-          <h1 className="text-4xl font-serif uppercase tracking-[0.2em] text-white mb-8">Configurações</h1>
+        <main className="flex-1 overflow-y-auto scrollbar-hide">
+          <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-4">
+            <h1 className="text-2xl font-serif uppercase tracking-[0.2em] text-white">Configurações</h1>
 
-          <div className="flex flex-col gap-6">
-            <section
-              className="rounded-3xl border border-white/10 backdrop-blur-sm p-8 shadow-2xl"
-              style={{ backgroundColor: 'rgba(19, 15, 42, 0.70)' }}
-            >
-              <div className="md:grid md:grid-cols-[minmax(180px,_1fr)_minmax(320px,_2fr)] md:items-center md:gap-8">
-                <div className="space-y-2">
-                  <h2 className="text-2xl font-serif text-white">Conta</h2>
-                  <p className="text-sm text-white/60">Informações do piloto</p>
+            <section className="rounded-2xl border border-white/10 backdrop-blur-sm p-5" style={cardStyle}>
+              <p className="text-xs text-cyan-400/70 uppercase tracking-widest mb-4">Perfil</p>
+              <div className="flex items-stretch gap-0 divide-x divide-white/10">
+                <div className="flex-1 pr-5">
+                  <p className="text-xs text-white/40 uppercase tracking-widest mb-1">Nome</p>
+                  <p className="text-base text-white/80 font-medium truncate">{player.name}</p>
                 </div>
-                <div className="mt-6 md:mt-0">
-                  <label className="block text-sm text-white/60 mb-2">Nome</label>
-                  <input
-                    value={name}
-                    onChange={(e) => {
-                      setName(e.target.value);
-                      setDirty(true);
-                    }}
-                    className="w-full bg-white/5 border border-white/15 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-300"
-                  />
+                <div className="flex-1 pl-5">
+                  <p className="text-xs text-white/40 uppercase tracking-widest mb-1">Piloto desde</p>
+                  <p className="text-base text-white/80 font-medium">{pilotSince}</p>
                 </div>
               </div>
             </section>
 
-            <section
-              className="rounded-3xl border border-white/10 backdrop-blur-sm p-8"
-              style={{ backgroundColor: 'rgba(19, 15, 42, 0.70)' }}
-            >
-              <div className="md:grid md:grid-cols-[minmax(180px,_1fr)_minmax(240px,_1.5fr)] md:items-center md:gap-8">
-                <div className="space-y-2">
-                  <h2 className="text-2xl font-serif text-white">Idioma</h2>
-                  <p className="text-sm text-white/60">Idioma da interface</p>
+            <section className="rounded-2xl border border-white/10 backdrop-blur-sm p-5" style={cardStyle}>
+              <p className="text-xs text-cyan-400/70 uppercase tracking-widest mb-4">Preferências</p>
+              <div className="flex flex-col gap-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm text-white/90">Idioma</p>
+                    <p className="text-xs text-white/40 mt-0.5">Idioma da interface</p>
+                  </div>
+                  <div className="w-48 shrink-0">
+                    <LanguageDropdown value={language} onChange={setLanguage} />
+                  </div>
                 </div>
-                <div className="mt-4 md:mt-0">
-                  <select
-                    value={language}
-                    onChange={(e) => {
-                      setLanguage(e.target.value);
-                      setDirty(true);
-                    }}
-                    className="w-full bg-[#1c0f24]/90 border border-white/15 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-300 cursor-pointer"
-                  >
-                    <option>Português (BR)</option>
-                    <option>English</option>
-                    <option>Español</option>
-                  </select>
+
+                <div className="h-px bg-white/5" />
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-white/90">Notificações</p>
+                    <p className="text-xs text-white/40 mt-0.5">Alertas e atualizações do jogo</p>
+                  </div>
+                  <NeonToggle checked={notifications} onChange={setNotifications} />
                 </div>
               </div>
             </section>
 
-            <section
-              className="rounded-3xl border border-white/10 backdrop-blur-sm p-8"
-              style={{ backgroundColor: 'rgba(19, 15, 42, 0.70)' }}
-            >
-              <div className="md:grid md:grid-cols-[minmax(180px,_1fr)_minmax(240px,_1.5fr)] md:items-center md:gap-8">
-                <div className="space-y-2">
-                  <h2 className="text-2xl font-serif text-white">Sessão</h2>
-                  <p className="text-sm text-white/60">Sair da conta</p>
+            <section className="rounded-2xl border border-rose-500/20 backdrop-blur-sm p-5" style={cardStyle}>
+              <p className="text-xs text-rose-400/70 uppercase tracking-widest mb-4">Zona de Perigo</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-white/90">Encerrar Sessão</p>
+                  <p className="text-xs text-white/40 mt-0.5">Você será desconectado da conta</p>
                 </div>
-                <div className="mt-4 md:mt-0 flex justify-start md:justify-end">
-                  <Button variant="secondary">
-                    Sair
-                  </Button>
-                </div>
+                <button
+                  type="button"
+                  className="cursor-pointer rounded-full border border-rose-500/50 px-5 py-2 text-xs font-display uppercase tracking-[0.2em] text-rose-400 hover:bg-rose-500/10 transition-all duration-300"
+                >
+                  Sair
+                </button>
               </div>
             </section>
-          </div>
-
-          <div className="flex flex-col gap-4 mt-8 md:flex-row md:items-center md:justify-between">
-            <span className={`text-xs text-cyan-400 transition-opacity ${dirty ? "opacity-100" : "opacity-0"}`}>
-              Alterações não salvas
-            </span>
-            <Button variant="primary" onClick={() => setDirty(false)}>
-              Salvar alterações
-            </Button>
           </div>
         </main>
 
