@@ -1,4 +1,4 @@
-import ParallaxBackground from '../../components/layout/ParallaxBackground/ParallaxBackground';
+import background from '../../assets/images/background.jpg';
 import Navbar from '../../components/common/Navbar/Navbar';
 import Button from '../../components/common/Button/Button';
 import Footer from '../../components/layout/Footer/Footer';
@@ -6,7 +6,15 @@ import Footer from '../../components/layout/Footer/Footer';
 function Home() {
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-hidden text-cyber-light">
-      <ParallaxBackground />
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${background})` }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{ backgroundColor: 'rgba(19, 15, 42, 0.70)' }}
+      />
+
       <Navbar />
 
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-16 pt-10 text-center sm:px-10">
