@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import Navbar from "../../components/common/NavBar/Navbar";
+import Footer from "../../components/layout/Footer/Footer";
 import backgroundGarage from "../../assets/images/background-garage.jpg";
 import attackMechImg from "../../assets/mechs/AttackMech/Parado-Direita.png";
 import defensiveMechImg from "../../assets/mechs/DefensiveMech/Parado-Direita.png";
@@ -294,6 +295,9 @@ function Garage() {
               />
             </div>
             <MechCarousel mechs={mechs} />
+          </div>
+          <div className="mt-auto">
+            <Footer />
           </div>
         </div>
       </div>

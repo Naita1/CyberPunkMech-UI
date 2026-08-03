@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Home from './pages/Home/Home';
 import Profile from './pages/Profile/Profile';
 import Garage from './pages/Garage/Garage';
+import Settings from './pages/Settings/Settings';
 import './App.css';
 
 function AnimatedRoutes() {
@@ -27,6 +28,7 @@ function AnimatedRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/perfil" element={<Profile />} />
         <Route path="/garagem" element={<Garage />} />
+        <Route path="/configuracoes" element={<Settings />} />
       </Routes>
     </div>
   );
