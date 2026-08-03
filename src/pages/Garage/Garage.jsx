@@ -1,37 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Navbar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/layout/Footer/Footer";
 import backgroundGarage from "../../assets/images/background-garage.jpg";
 import attackMechImg from "../../assets/mechs/AttackMech/Parado-Direita.png";
 import defensiveMechImg from "../../assets/mechs/DefensiveMech/Parado-Direita.png";
-
-const mockGarage = [
-  {
-    id: "mech-01",
-    model: "Raptor-X Alpha",
-    type: "ATTACK",
-    currentHealth: 72,
-    maxHealth: 100,
-    battery: 72,
-    attackPower: 40,
-    heatLevel: 40,
-  },
-  {
-    id: "mech-05",
-    model: "Aegis-V Vanguard",
-    type: "DEFENSIVE",
-    currentHealth: 100,
-    maxHealth: 100,
-    battery: 100,
-    attackPower: 20,
-    isShieldActive: false,
-  },
-];
+import { mechService } from "../../services/mechService";
 
 const mechImages = {
-  ATTACK: attackMechImg,
-  DEFENSIVE: defensiveMechImg,
+  AttackMech: attackMechImg,
+  DefensiveMech: defensiveMechImg,
 };
 
 const slideVariants = {
@@ -114,7 +92,7 @@ function MechCarousel({ mechs }) {
 
           return (
             <motion.div
-              key={mech.id}
+              key={mech.idMech ?? index}
               custom={offset}
               variants={cardVariants}
               animate="animate"
@@ -152,7 +130,7 @@ function MechCarousel({ mechs }) {
           const isActive = index === selectedIndex;
           return (
             <button
-              key={mech.id}
+              key={mech.idMech ?? index}
               onClick={() => setSelectedIndex(index)}
               aria-label={`Ir para ${mech.model}`}
               className={`h-1.5 rounded-full transition-all duration-500 ${
@@ -169,7 +147,7 @@ function MechCarousel({ mechs }) {
 }
 
 function MechCard({ mech, isFocused }) {
-  const isAttack = mech.type === "ATTACK";
+  const isAttack = mech.model === "AttackMech";
 
   return (
     <div
@@ -181,7 +159,7 @@ function MechCard({ mech, isFocused }) {
     >
       <div className="w-full h-36 flex items-center justify-center mb-4">
         <img
-          src={mechImages[mech.type]}
+          src={mechImages[mech.model] ?? attackMechImg}
           alt={mech.model}
           className="h-full object-contain pointer-events-none drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]"
         />
@@ -227,8 +205,8 @@ function MechCard({ mech, isFocused }) {
         {isAttack ? (
           <span>Heat: {mech.heatLevel}%</span>
         ) : (
-          <span className={mech.isShieldActive ? "text-cyan-300" : "text-white/45"}>
-            {mech.isShieldActive ? "Escudo ativo" : "Escudo inativo"}
+          <span className={mech.shieldActive ? "text-cyan-300" : "text-white/45"}>
+            {mech.shieldActive ? "Escudo ativo" : "Escudo inativo"}
           </span>
         )}
         <span className="text-cyber-gold font-semibold">ATK {mech.attackPower}</span>
@@ -238,7 +216,16 @@ function MechCard({ mech, isFocused }) {
 }
 
 function Garage() {
-  const [mechs] = useState(mockGarage);
+  const [mechs, setMechs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const TEMP_ID = "player-001";
+    mechService.getMechsByPlayer(TEMP_ID)
+      .then(setMechs)
+      .catch((err) => { console.error("Erro ao carregar mechs:", err); setMechs([]); })
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="bg-cyber-dark min-h-screen">
@@ -259,7 +246,17 @@ function Garage() {
           </div>
 
           <div className="relative mt-2">
-            <MechCarousel mechs={mechs} />
+            {loading ? (
+              <div className="flex items-center justify-center h-64">
+                <p className="text-cyan-300 text-sm uppercase tracking-widest animate-pulse">Carregando...</p>
+              </div>
+            ) : mechs.length === 0 ? (
+              <div className="flex items-center justify-center h-64">
+                <p className="text-white/40 text-sm">Nenhum mech encontrado.</p>
+              </div>
+            ) : (
+              <MechCarousel mechs={mechs} />
+            )}
           </div>
 
           <div className="mt-auto">

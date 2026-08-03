@@ -1,23 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/layout/Footer/Footer";
 import backgroundProfile from "../../assets/images/background-profile.jpg";
+import { playerService } from "../../services/playerService";
+import { mechService } from "../../services/mechService";
 
-const mockPlayer = {
-  name: "Nome do Usuário",
-  coins: 30,
-  mechsCount: 2,
-  wins: 2,
-  createdAt: "2026-01-15",
-};
+function formatDate(createdAt) {
+  if (!createdAt) return "—";
+    const date = createdAt.seconds 
+    ? new Date(createdAt.seconds * 1000) 
+    : new Date(createdAt);
 
-function formatDate(dateStr) {
-  const date = new Date(dateStr);
   return date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 }
 
 function Profile() {
-  const [player] = useState(mockPlayer);
+  const [player, setPlayer] = useState(null);
+  const [mechs, setMechs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const TEMP_ID = "player-001";
+    Promise.all([
+      playerService.getPlayerById(TEMP_ID),
+      mechService.getMechsByPlayer(TEMP_ID),
+    ])
+      .then(([playerData, mechsData]) => {
+        setPlayer(playerData);
+        setMechs(mechsData);
+      })
+      .catch(() => setError("Não foi possível carregar o perfil."))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return (
+    <div className="h-screen flex items-center justify-center bg-[#0d0a1f]">
+      <p className="text-cyan-300 text-sm uppercase tracking-widest animate-pulse">Carregando...</p>
+    </div>
+  );
+
+  if (error) return (
+    <div className="h-screen flex items-center justify-center bg-[#0d0a1f]">
+      <p className="text-rose-400 text-sm">{error}</p>
+    </div>
+  );
 
   return (
     <div className="h-screen overflow-hidden bg-cyber-dark">
@@ -36,7 +65,7 @@ function Profile() {
           <div className="flex flex-col items-center pt-12 pb-6">
             <div className="h-32 w-32 rounded-full bg-[#D9D9D9] shadow-lg" />
 
-            <p className="mt-5 text-3xl font-serif text-white tracking-wide">{player.name}</p>
+            <p className="mt-5 text-3xl font-serif text-white tracking-wide">{player.namePlayer}</p>
             <p className="text-base text-white/70 mt-1 font-light">
               Piloto desde {formatDate(player.createdAt)}
             </p>
@@ -63,12 +92,12 @@ function Profile() {
 
               <div className="flex flex-col items-center rounded-xl bg-[#1A1122]/80 p-6 shadow-2xl">
                 <p className="mb-3 text-lg font-serif tracking-wider text-white">Mechs</p>
-                <p className="text-3xl font-bold text-cyber-pink">{player.mechsCount}</p>
+                <p className="text-3xl font-bold text-cyber-pink">{mechs.length}</p>
               </div>
 
               <div className="flex flex-col items-center rounded-xl bg-[#1A1122]/80 p-6 shadow-2xl">
                 <p className="mb-3 text-lg font-serif tracking-wider text-white">Vitórias</p>
-                <p className="text-3xl font-bold text-cyan-300">{player.wins}</p>
+                <p className="text-3xl font-bold text-cyan-300">{player.wins ?? "—"}</p>
               </div>
             </div>
 
@@ -78,20 +107,26 @@ function Profile() {
                   <p className="text-sm uppercase tracking-[0.3em] text-cyan-300/80">Preview da Garagem</p>
                   <h3 className="mt-2 text-xl font-semibold text-white">Mechs recentes</h3>
                 </div>
-                <button className="rounded-full border border-cyan-400/40 px-4 py-2 text-sm uppercase tracking-[0.2em] text-cyan-300 transition hover:bg-cyan-400/10">
+                <button
+                  onClick={() => navigate("/garagem")}
+                  className="rounded-full border border-cyan-400/40 px-4 py-2 text-sm uppercase tracking-[0.2em] text-cyan-300 transition hover:bg-cyan-400/10">
                   Ver garagem
                 </button>
               </div>
 
               <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-                  <p className="text-sm uppercase tracking-[0.25em] text-cyan-200/80">Vanguard X</p>
-                  <p className="mt-2 text-white">Mech pesado com armamento de suporte e alta proteção.</p>
-                </div>
-                <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-                  <p className="text-sm uppercase tracking-[0.25em] text-cyan-200/80">Aegis-9</p>
-                  <p className="mt-2 text-white">Modelo ágil focado em mobilidade e precisão tática.</p>
-                </div>
+                {mechs.slice(0, 2).map((mech) => (
+                  <div key={mech.idMech} className="rounded-xl border border-white/10 bg-black/20 p-4">
+                    <p className="text-sm uppercase tracking-[0.25em] text-cyan-200/80">{mech.model}</p>
+                    <div className="mt-2 flex justify-between text-xs text-white/50">
+                      <span>HP {mech.currentHealth}/{mech.maxHealth}</span>
+                      <span>ATK {mech.attackPower}</span>
+                    </div>
+                  </div>
+                ))}
+                {mechs.length === 0 && (
+                  <p className="text-sm text-white/30 col-span-2">Nenhum mech na garagem.</p>
+                )}
               </div>
             </div>
 

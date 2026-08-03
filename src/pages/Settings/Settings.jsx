@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import Navbar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/layout/Footer/Footer";
 import settingsBg from "../../assets/images/background-settings.jpg";
+import { playerService } from "../../services/playerService";
 
 const LANGUAGES = ["Português (BR)", "English", "Español"];
 
@@ -73,14 +75,24 @@ function NeonToggle({ checked, onChange }) {
   );
 }
 
-export default function Settings({ player = { name: "Nome do Usuário", coins: 30, createdAt: "2026-01-01" } }) {
+export default function Settings() {
+  const [player, setPlayer] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [language, setLanguage] = useState("Português (BR)");
   const [notifications, setNotifications] = useState(true);
+  const navigate = useNavigate();
 
-  const pilotSince = new Date(player.createdAt).toLocaleDateString("pt-BR", {
-    month: "long",
-    year: "numeric",
-  });
+  useEffect(() => {
+    const TEMP_ID = "player-001";
+    playerService.getPlayerById(TEMP_ID)
+      .then(setPlayer)
+      .catch(() => setPlayer(null))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const pilotSince = player?.createdAt
+    ? new Date(player.createdAt).toLocaleDateString("pt-BR", { month: "long", year: "numeric" })
+    : "—";
 
   return (
     <div className="relative h-screen overflow-hidden text-white flex flex-col">
@@ -89,6 +101,12 @@ export default function Settings({ player = { name: "Nome do Usuário", coins: 3
 
       <div className="relative z-10 flex flex-col h-full">
         <Navbar />
+
+        {loading ? (
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-cyan-300 text-sm uppercase tracking-widest animate-pulse">Carregando...</p>
+          </div>
+        ) : (
 
         <main className="flex-1 overflow-y-auto scrollbar-hide">
           <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-4">
@@ -99,7 +117,7 @@ export default function Settings({ player = { name: "Nome do Usuário", coins: 3
               <div className="flex items-stretch gap-0 divide-x divide-white/10">
                 <div className="flex-1 pr-5">
                   <p className="text-xs text-white/40 uppercase tracking-widest mb-1">Nome</p>
-                  <p className="text-base text-white/80 font-medium truncate">{player.name}</p>
+                  <p className="text-base text-white/80 font-medium truncate">{player?.namePlayer ?? "—"}</p>
                 </div>
                 <div className="flex-1 pl-5">
                   <p className="text-xs text-white/40 uppercase tracking-widest mb-1">Piloto desde</p>
@@ -142,6 +160,7 @@ export default function Settings({ player = { name: "Nome do Usuário", coins: 3
                 </div>
                 <button
                   type="button"
+                  onClick={() => navigate("/")}
                   className="cursor-pointer rounded-full border border-rose-500/50 px-5 py-2 text-xs font-display uppercase tracking-[0.2em] text-rose-400 hover:bg-rose-500/10 transition-all duration-300"
                 >
                   Sair
@@ -151,6 +170,7 @@ export default function Settings({ player = { name: "Nome do Usuário", coins: 3
           </div>
         </main>
 
+        )}
         <Footer />
       </div>
     </div>
