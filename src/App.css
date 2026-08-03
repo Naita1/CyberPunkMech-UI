@@ -182,3 +182,19 @@
     border-right-color: var(--border);
   }
 }
+
+.route-transition {
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.route-transition.fadeEnter {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.route-transition.fadeExit {
+  opacity: 0;
+  transform: translateY(8px);
+}
