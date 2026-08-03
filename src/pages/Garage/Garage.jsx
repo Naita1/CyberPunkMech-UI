@@ -106,11 +106,47 @@ function MechCard({ mech, distance }) {
     </div>
   );
 }
+function MechSlot({ mech, offset, distance, skipEnterAnimation, onClick }) {
+
+  const [entered, setEntered] = useState(skipEnterAnimation);
+
+  useEffect(() => {
+    if (entered) return;
+    const id = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  const direction = Math.sign(offset) || 1;
+  const enterOffset = offset + direction; 
+  const currentOffset = entered ? offset : enterOffset;
+
+  const translateY = offset === 0 ? -16 : distance === 1 ? 10 : 26;
+  const scale = offset === 0 ? 1.12 : distance === 1 ? 0.85 : 0.68;
+
+  return (
+    <div
+      className="absolute left-1/2 top-1/2"
+      onClick={onClick}
+      style={{
+        transform: `translate(-50%, -50%) translateX(${currentOffset * 300}px) translateY(${translateY}px) scale(${scale})`,
+        zIndex: 10 - distance,
+        cursor: offset === 0 ? "grab" : "pointer",
+        transition: "transform 600ms cubic-bezier(0.22, 1, 0.36, 1)",
+      }}
+    >
+      <MechCard mech={mech} distance={distance} />
+    </div>
+  );
+}
+
 function MechCarousel({ mechs }) {
   const n = mechs.length;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const dragState = useRef({ startX: 0, dragging: false });
-
+  const isInitialMountRef = useRef(true);
+  useEffect(() => {
+    isInitialMountRef.current = false;
+  }, []);
   const scrollPrev = useCallback(
     () => setSelectedIndex((i) => (i - 1 + n) % n),
     [n]
@@ -119,17 +155,13 @@ function MechCarousel({ mechs }) {
     () => setSelectedIndex((i) => (i + 1) % n),
     [n]
   );
-
   const getOffset = (index) => {
     let raw = index - selectedIndex;
     if (raw > n / 2) raw -= n;
     if (raw < -n / 2) raw += n;
     return raw;
   };
-
-
   const maxVisibleDistance = Math.floor((n - 1) / 2);
-
   const onPointerDown = (e) => {
     dragState.current = { startX: e.clientX, dragging: true, moved: false };
   };
@@ -146,7 +178,6 @@ function MechCarousel({ mechs }) {
     else if (delta > 60) scrollPrev();
     dragState.current.dragging = false;
   };
-
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "ArrowLeft") scrollPrev();
@@ -155,7 +186,6 @@ function MechCarousel({ mechs }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [scrollPrev, scrollNext]);
-
   return (
       <div
         className="relative py-10 px-4 md:px-16 overflow-hidden"
@@ -177,32 +207,25 @@ function MechCarousel({ mechs }) {
           const offset = getOffset(index);
           const distance = Math.abs(offset);
           const isHidden = distance > maxVisibleDistance;
+
+          if (isHidden) return null;
+
           return (
-            <div
+            <MechSlot
               key={mech.id}
-              className="absolute left-1/2 top-1/2"
+              mech={mech}
+              offset={offset}
+              distance={distance}
+              skipEnterAnimation={isInitialMountRef.current}
               onClick={() => {
-                if (isHidden || offset === 0) return;
+                if (offset === 0) return;
                 if (dragState.current.moved) return;
                 setSelectedIndex(index);
               }}
-              style={{
-                transform: `translate(-50%, -50%) translateX(${offset * 300}px) translateY(${
-                  offset === 0 ? -16 : distance === 1 ? 10 : 26
-                }px) scale(${offset === 0 ? 1.12 : distance === 1 ? 0.85 : 0.68})`,
-                zIndex: 10 - distance,
-                opacity: isHidden ? 0 : undefined,
-                pointerEvents: isHidden ? "none" : "auto",
-                cursor: offset === 0 ? "grab" : "pointer",
-                transition: "transform 600ms cubic-bezier(0.22, 1, 0.36, 1), opacity 400ms ease-out",
-              }}
-            >
-              <MechCard mech={mech} distance={distance} />
-            </div>
+            />
           );
         })}
       </div>
-
       <div className="flex items-center justify-center gap-2 mt-6">
         {mechs.map((mech, index) => {
           const isActive = index === selectedIndex;
@@ -259,9 +282,6 @@ function Garage() {
             <p className="text-xs uppercase tracking-[0.35em] text-cyan-300/80 mb-2 pb-10">
              UNIDADES DISPONÍVEIS
             </p>
-            {/* <h1 className="text-5xl font-serif tracking-[0.2em] text-white uppercase">
-              Garagem
-            </h1> */}
           </div>
           <div className="relative mt-8">
             <div className="pointer-events-none absolute inset-0 mx-auto w-full max-w-5xl">
