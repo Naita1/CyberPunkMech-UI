@@ -1,4 +1,4 @@
-import fundo from '../../../assets/images/fundo.jpg';
+import fundo from '../../../assets/images/background.jpg';
 
 function ParallaxBackground() {
   return (

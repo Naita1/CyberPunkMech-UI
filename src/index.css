@@ -56,6 +56,17 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#root::-webkit-scrollbar {
+  display: none;
 }
 
 #root {
@@ -67,6 +78,8 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 h1,
