@@ -10,11 +10,11 @@ function Navbar() {
         <Link to={isProfilePage ? '/' : '/perfil'} className="text-sm text-white/85 transition-opacity hover:text-white">
           {isProfilePage ? 'Home' : 'Profile'}
         </Link>
-        <a href="#configuracoes" className="text-sm text-white/85 transition-opacity hover:text-white">Configurações</a>
+        <Link to="/garagem" className="text-sm text-white/85 transition-opacity hover:text-white">Garagem</Link>
       </div>
 
       <div className="flex items-center gap-4 sm:gap-8">
-        <a href="#garagem" className="text-sm text-white/85 transition-opacity hover:text-white">Garagem</a>
+        <a href="#configuracoes" className="text-sm text-white/85 transition-opacity hover:text-white">Configurações</a>
         <a href="#sobre" className="text-sm text-white/85 transition-opacity hover:text-white">Sobre</a>
       </div>
     </nav>

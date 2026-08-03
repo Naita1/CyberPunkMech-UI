@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Home from './pages/Home/Home';
 import Profile from './pages/Profile/Profile';
+import Garage from './pages/Garage/Garage';
 import './App.css';
 
 function AnimatedRoutes() {
@@ -25,6 +26,7 @@ function AnimatedRoutes() {
       <Routes location={displayLocation}>
         <Route path="/" element={<Home />} />
         <Route path="/perfil" element={<Profile />} />
+        <Route path="/garagem" element={<Garage />} />
       </Routes>
     </div>
   );
