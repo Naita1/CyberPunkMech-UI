@@ -5,6 +5,7 @@ import Profile from './pages/Profile/Profile';
 import Garage from './pages/Garage/Garage';
 import Settings from './pages/Settings/Settings';
 import About from './pages/About/About';
+import Login from './pages/Login/Login';
 import './App.css';
 
 function AnimatedRoutes() {
@@ -27,6 +28,7 @@ function AnimatedRoutes() {
     <div className={`route-transition ${transitionStage}`}>
       <Routes location={displayLocation}>
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/perfil" element={<Profile />} />
         <Route path="/garagem" element={<Garage />} />
         <Route path="/configuracoes" element={<Settings />} />
