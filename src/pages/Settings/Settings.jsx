@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import Navbar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/layout/Footer/Footer";
-import settingsBg from "../../assets/images/settings.jpg";
+import settingsBg from "../../assets/images/background-settings.jpg";
 
 const LANGUAGES = ["Português (BR)", "English", "Español"];
 

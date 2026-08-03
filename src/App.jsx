@@ -4,6 +4,7 @@ import Home from './pages/Home/Home';
 import Profile from './pages/Profile/Profile';
 import Garage from './pages/Garage/Garage';
 import Settings from './pages/Settings/Settings';
+import About from './pages/About/About';
 import './App.css';
 
 function AnimatedRoutes() {
@@ -29,6 +30,7 @@ function AnimatedRoutes() {
         <Route path="/perfil" element={<Profile />} />
         <Route path="/garagem" element={<Garage />} />
         <Route path="/configuracoes" element={<Settings />} />
+        <Route path="/sobre" element={<About />} />
       </Routes>
     </div>
   );

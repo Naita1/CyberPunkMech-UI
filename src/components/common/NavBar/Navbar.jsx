@@ -15,7 +15,7 @@ function Navbar() {
 
       <div className="flex items-center gap-4 sm:gap-8">
         <Link to="/configuracoes" className="text-sm text-white/85 transition-opacity hover:text-white">Configurações</Link>
-        <a href="#sobre" className="text-sm text-white/85 transition-opacity hover:text-white">Sobre</a>
+        <a href="/sobre" className="text-sm text-white/85 transition-opacity hover:text-white">Sobre</a>
       </div>
     </nav>
   );
