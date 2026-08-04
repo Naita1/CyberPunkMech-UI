@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import { ChevronDown } from "lucide-react";
 import Navbar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/layout/Footer/Footer";
@@ -76,19 +77,20 @@ function NeonToggle({ checked, onChange }) {
 }
 
 export default function Settings() {
+  const { logout, player: authPlayer } = useAuth();
+  const navigate = useNavigate();
   const [player, setPlayer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [language, setLanguage] = useState("Português (BR)");
   const [notifications, setNotifications] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const TEMP_ID = "player-001";
-    playerService.getPlayerById(TEMP_ID)
+    if (!authPlayer?.idPlayer) return;
+    playerService.getPlayerById(authPlayer.idPlayer)
       .then(setPlayer)
       .catch(() => setPlayer(null))
       .finally(() => setLoading(false));
-  }, []);
+  }, [authPlayer]);
 
   const pilotSince = player?.createdAt
     ? new Date(player.createdAt).toLocaleDateString("pt-BR", { month: "long", year: "numeric" })
@@ -160,7 +162,7 @@ export default function Settings() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => navigate("/")}
+                  onClick={() => { logout(); navigate("/login"); }}
                   className="cursor-pointer rounded-full border border-rose-500/50 px-5 py-2 text-xs font-display uppercase tracking-[0.2em] text-rose-400 hover:bg-rose-500/10 transition-all duration-300"
                 >
                   Sair

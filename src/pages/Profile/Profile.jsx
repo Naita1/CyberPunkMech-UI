@@ -5,6 +5,7 @@ import Footer from "../../components/layout/Footer/Footer";
 import backgroundProfile from "../../assets/images/background-profile.jpg";
 import { playerService } from "../../services/playerService";
 import { mechService } from "../../services/mechService";
+import { useAuth } from "../../context/AuthContext";
 
 function formatDate(createdAt) {
   if (!createdAt) return "—";
@@ -16,6 +17,7 @@ function formatDate(createdAt) {
 }
 
 function Profile() {
+  const { player: authPlayer } = useAuth();
   const [player, setPlayer] = useState(null);
   const [mechs, setMechs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,10 +25,10 @@ function Profile() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const TEMP_ID = "player-001";
+    if (!authPlayer?.idPlayer) return;
     Promise.all([
-      playerService.getPlayerById(TEMP_ID),
-      mechService.getMechsByPlayer(TEMP_ID),
+      playerService.getPlayerById(authPlayer.idPlayer),
+      mechService.getMechsByPlayer(authPlayer.idPlayer),
     ])
       .then(([playerData, mechsData]) => {
         setPlayer(playerData);

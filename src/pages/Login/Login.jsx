@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import background from "../../assets/images/background.jpg";
 import Footer from "../../components/layout/Footer/Footer";
+import { useAuth } from "../../context/AuthContext";
 
 const inputClass =
   "w-full bg-[#100814] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-cyan-500/50 transition-colors";
@@ -8,13 +10,36 @@ const inputClass =
 const labelClass = "block text-xs text-white/40 uppercase tracking-widest mb-2";
 
 export default function Login() {
+  const { login, register } = useAuth();
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [textIsLogin, setTextIsLogin] = useState(true);
   const [textVisible, setTextVisible] = useState(true);
   const [form, setForm] = useState({ name: "", password: "", confirm: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-  const handleSubmit = (e) => { e.preventDefault(); };
+  const handleChange = (e) => { setError(""); setForm((f) => ({ ...f, [e.target.name]: e.target.value })); };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (!form.name.trim() || !form.password.trim()) return setError("Preencha todos os campos.");
+    if (!isLogin && form.password !== form.confirm) return setError("As senhas não coincidem.");
+    setLoading(true);
+    try {
+      if (isLogin) {
+        await login(form.name, form.password);
+      } else {
+        await register(form.name, form.password);
+      }
+      navigate("/perfil");
+    } catch {
+      setError(isLogin ? "Piloto não encontrado." : "Erro ao criar conta.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggle = () => {
     setTextVisible(false);
@@ -60,9 +85,10 @@ export default function Login() {
                     <input name="password" type="password" value={form.password} onChange={handleChange}
                       placeholder="••••••••" autoComplete="current-password" className={inputClass} />
                   </div>
-                  <button type="submit"
-                    className="mt-2 w-full cursor-pointer rounded-full border border-pink-500/40 bg-pink-600/70 py-3 text-sm uppercase tracking-[0.25em] text-white shadow-[0_0_10px_rgba(236,72,153,0.2)] hover:bg-pink-600/85 hover:shadow-[0_0_16px_rgba(236,72,153,0.3)] transition-all duration-300">
-                    Entrar
+                  {error && isLogin && <p className="text-xs text-rose-400">{error}</p>}
+                  <button type="submit" disabled={loading}
+                    className="mt-2 w-full cursor-pointer rounded-full border border-pink-500/40 bg-pink-600/70 py-3 text-sm uppercase tracking-[0.25em] text-white shadow-[0_0_10px_rgba(236,72,153,0.2)] hover:bg-pink-600/85 hover:shadow-[0_0_16px_rgba(236,72,153,0.3)] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300">
+                    {loading && isLogin ? "Entrando..." : "Entrar"}
                   </button>
                 </form>
               </div>
@@ -85,9 +111,10 @@ export default function Login() {
                     <input name="confirm" type="password" value={form.confirm} onChange={handleChange}
                       placeholder="••••••••" autoComplete="new-password" className={inputClass} />
                   </div>
-                  <button type="submit"
-                    className="mt-1 w-full cursor-pointer rounded-full border border-pink-500/40 bg-pink-600/70 py-3 text-sm uppercase tracking-[0.25em] text-white shadow-[0_0_10px_rgba(236,72,153,0.2)] hover:bg-pink-600/85 hover:shadow-[0_0_16px_rgba(236,72,153,0.3)] transition-all duration-300">
-                    Criar Conta
+                  {error && !isLogin && <p className="text-xs text-rose-400">{error}</p>}
+                  <button type="submit" disabled={loading}
+                    className="mt-1 w-full cursor-pointer rounded-full border border-pink-500/40 bg-pink-600/70 py-3 text-sm uppercase tracking-[0.25em] text-white shadow-[0_0_10px_rgba(236,72,153,0.2)] hover:bg-pink-600/85 hover:shadow-[0_0_16px_rgba(236,72,153,0.3)] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300">
+                    {loading && !isLogin ? "Criando..." : "Criar Conta"}
                   </button>
                 </form>
               </div>

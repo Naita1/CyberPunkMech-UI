@@ -6,6 +6,7 @@ import backgroundGarage from "../../assets/images/background-garage.jpg";
 import attackMechImg from "../../assets/mechs/AttackMech/Parado-Direita.png";
 import defensiveMechImg from "../../assets/mechs/DefensiveMech/Parado-Direita.png";
 import { mechService } from "../../services/mechService";
+import { useAuth } from "../../context/AuthContext";
 
 const mechImages = {
   AttackMech: attackMechImg,
@@ -216,12 +217,13 @@ function MechCard({ mech, isFocused }) {
 }
 
 function Garage() {
+  const { player: authPlayer } = useAuth();
   const [mechs, setMechs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const TEMP_ID = "player-001";
-    mechService.getMechsByPlayer(TEMP_ID)
+    if (!authPlayer?.idPlayer) return;
+    mechService.getMechsByPlayer(authPlayer.idPlayer)
       .then(setMechs)
       .catch((err) => { console.error("Erro ao carregar mechs:", err); setMechs([]); })
       .finally(() => setLoading(false));
