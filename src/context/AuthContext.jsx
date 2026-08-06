@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
   const register = async (name, password) => {
     const existing = await playerService.getPlayerById(name).catch(() => null);
     if (existing) throw new Error("Nome já está em uso.");
-    const newPlayer = { idPlayer: name, namePlayer: name, coins: 0 };
+    const newPlayer = { idPlayer: name, namePlayer: name};
     await playerService.savePlayer(newPlayer);
     localStorage.setItem("player", JSON.stringify(newPlayer));
     setPlayer(newPlayer);

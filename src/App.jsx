@@ -5,6 +5,7 @@ import Profile from './pages/Profile/Profile';
 import Garage from './pages/Garage/Garage';
 import Settings from './pages/Settings/Settings';
 import About from './pages/About/About';
+import Store from './pages/Store/Store';
 import Login from './pages/Login/Login';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './App.css';
@@ -39,6 +40,7 @@ function AnimatedRoutes() {
         <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/garagem" element={<ProtectedRoute><Garage /></ProtectedRoute>} />
         <Route path="/configuracoes" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/loja" element={<ProtectedRoute><Store /></ProtectedRoute>} />
         <Route path="/sobre" element={<About />} />
       </Routes>
     </div>

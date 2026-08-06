@@ -13,6 +13,7 @@ function Navbar() {
       </div>
 
       <div className="flex items-center gap-4 sm:gap-8">
+        <Link to="/loja" className="text-sm text-white/85 transition-opacity hover:text-white">Loja</Link>
         <Link to="/configuracoes" className="text-sm text-white/85 transition-opacity hover:text-white">Configurações</Link>
         <a href="/sobre" className="text-sm text-white/85 transition-opacity hover:text-white">Sobre</a>
       </div>
