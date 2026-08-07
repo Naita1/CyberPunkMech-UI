@@ -11,6 +11,11 @@ export const playerService = {
     return response.data;
   },
 
+  login: async (namePlayer, password) => {
+    const response = await api.post("/players/login", { namePlayer, password });
+    return response.data;
+  },
+
   deletePlayer: async (idPlayer) => {
     await api.delete(`/players/${idPlayer}`);
   },

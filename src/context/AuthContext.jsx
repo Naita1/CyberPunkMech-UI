@@ -18,22 +18,30 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (name, password) => {
-  
-    const data = await playerService.getPlayerById(name);
-    if (!data) throw new Error("Piloto não encontrado.");
+    let data;
+    try {
+      data = await playerService.login(name, password);
+    } catch (err) {
+      throw new Error("Piloto ou senha inválidos.");
+    }
     localStorage.setItem("player", JSON.stringify(data));
     setPlayer(data);
     return data;
   };
 
   const register = async (name, password) => {
-    const existing = await playerService.getPlayerById(name).catch(() => null);
-    if (existing) throw new Error("Nome já está em uso.");
-    const newPlayer = { idPlayer: name, namePlayer: name};
-    await playerService.savePlayer(newPlayer);
-    localStorage.setItem("player", JSON.stringify(newPlayer));
-    setPlayer(newPlayer);
-    return newPlayer;
+    let data;
+    try {
+      data = await playerService.savePlayer({ namePlayer: name, password });
+    } catch (err) {
+      if (err.response?.status === 409) {
+        throw new Error("Nome já está em uso.");
+      }
+      throw new Error("Não foi possível criar o piloto.");
+    }
+    localStorage.setItem("player", JSON.stringify(data));
+    setPlayer(data);
+    return data;
   };
 
   const logout = () => {
