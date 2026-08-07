@@ -9,11 +9,22 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const saved = localStorage.getItem("player");
-    if (!saved) { setChecking(false); return; }
+    const token = localStorage.getItem("token");
+    if (!saved || !token) { setChecking(false); return; }
     const parsed = JSON.parse(saved);
     playerService.getPlayerById(parsed.idPlayer)
-      .then((data) => { if (data) setPlayer(data); else localStorage.removeItem("player"); })
-      .catch(() => localStorage.removeItem("player"))
+      .then((data) => {
+        if (data) {
+          setPlayer(data);
+        } else {
+          localStorage.removeItem("player");
+          localStorage.removeItem("token");
+        }
+      })
+      .catch(() => {
+        localStorage.removeItem("player");
+        localStorage.removeItem("token");
+      })
       .finally(() => setChecking(false));
   }, []);
 
@@ -24,9 +35,10 @@ export function AuthProvider({ children }) {
     } catch (err) {
       throw new Error("Piloto ou senha inválidos.");
     }
-    localStorage.setItem("player", JSON.stringify(data));
-    setPlayer(data);
-    return data;
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("player", JSON.stringify(data.player));
+    setPlayer(data.player);
+    return data.player;
   };
 
   const register = async (name, password) => {
@@ -39,13 +51,15 @@ export function AuthProvider({ children }) {
       }
       throw new Error("Não foi possível criar o piloto.");
     }
-    localStorage.setItem("player", JSON.stringify(data));
-    setPlayer(data);
-    return data;
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("player", JSON.stringify(data.player));
+    setPlayer(data.player);
+    return data.player;
   };
 
   const logout = () => {
     localStorage.removeItem("player");
+    localStorage.removeItem("token");
     setPlayer(null);
   };
 

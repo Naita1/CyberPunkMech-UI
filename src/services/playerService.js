@@ -13,7 +13,7 @@ export const playerService = {
 
   login: async (namePlayer, password) => {
     const response = await api.post("/players/login", { namePlayer, password });
-    return response.data;
+    return response.data; 
   },
 
   deletePlayer: async (idPlayer) => {
