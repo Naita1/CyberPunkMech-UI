@@ -4,8 +4,6 @@ import Navbar from '../../components/common/Navbar/Navbar';
 import Button from '../../components/common/Button/Button';
 import Footer from '../../components/layout/Footer/Footer';
 
-// Substitua por dados vindos da sua API / estado global do usuário.
-const INITIAL_COINS = 50;
 
 const MECHS = [
   {
@@ -71,8 +69,7 @@ function Shop() {
     if (owned.has(mech.id) || coins < mech.preco) return;
     setCoins((prev) => prev - mech.preco);
     setOwned((prev) => new Set(prev).add(mech.id));
-    // Aqui entra a chamada real pra API/estado global pra persistir
-    // a compra e refletir o mech na Garagem.
+
   };
 
   const hasUnaffordable = MECHS.some(
